@@ -50,7 +50,9 @@ public class HybridCryptography {
 		}
 		
 		data = new byte[x1.length];
-		
+		for(int i = 0; i < data.length; i++) {
+			data[i] = (byte) (x1[i] ^ x2[i]);
+		}
 		
 		return data;
 	}
