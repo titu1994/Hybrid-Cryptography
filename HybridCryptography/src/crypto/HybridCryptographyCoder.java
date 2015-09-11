@@ -1,12 +1,15 @@
 package crypto;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 
 public class HybridCryptographyCoder {
+	public static final int KEYSIZE = 128;
 	
 	// Encode ip string to bytes (Encoding - UTF8)
-	private static byte[] stringToBytes(String ip) {
+	public static byte[] stringToBytes(String ip) {
 		try {
 			return ip.getBytes("UTF8");
 		} catch (UnsupportedEncodingException e) {
@@ -16,25 +19,63 @@ public class HybridCryptographyCoder {
 	}
 	
 	// Convert UTF8 bytes to displayable string
-	private static String bytesToBase64(byte[] data) {
+	public static String bytesToBase64(byte[] data) {
 		return Base64.getEncoder().encodeToString(data);
 	}
 	
 	// Convert Base64 String to UTF8 bytes
-	private static byte[] base64ToBytes(String data) {
+	public static byte[] base64ToBytes(String data) {
 		return Base64.getDecoder().decode(data);
 	}
 	
 	// Encode UTF 8 bytes to displayable String
-	private static String bytesToString(byte[] ip) {
+	public static String bytesToString(byte[] ip) {
 		return new String(ip);
+	}
+	
+	/**
+	 * Converts a large single dimensional array into smaller chunks
+	 */
+	public static byte[][] bytesToChunks(byte[] data) {
+		int chunkSize = KEYSIZE / 8;
+		int len = data.length;
+		int n = ((data.length - 1) / chunkSize) + 1;
+		byte chunks[][] = new byte[n][];
+		int counter = 0;
+		
+		for (int i = 0; i < len - chunkSize + 1; i += chunkSize)
+			chunks[counter++] = Arrays.copyOfRange(data, i, i + chunkSize);
+
+		if (len % chunkSize != 0)
+			chunks[counter] = Arrays.copyOfRange(data, len - len % chunkSize, len);
+		
+		return chunks;
+	}
+	
+	/**
+	 * Converts several small chunks into a large single dimensional array
+	 */
+	public static byte[] chunksToBytes(byte x[][]) {
+		ArrayList<Byte> list = new ArrayList<>();
+		
+		for(int i = 0; i < x.length; i++) {
+	        for(int j = 0; j < x[i].length; j++){
+	            list.add(x[i][j]);
+	        }
+	    }
+		
+		byte data[] = new byte[list.size()];
+		for(int i = 0; i < data.length; i++) 
+			data[i] = list.get(i);
+			
+		return data;
 	}
 
 	/**
 	  * Perform bitwise XOR operation on 8 bit chunks.
 	  * Pads either byte array with 0's at the beginning if not of the same size.
 	  */
-	private static byte[] bitwiseXOR(byte[] x1, byte[] x2) {
+	public static byte[] bitwiseXOR(byte[] x1, byte[] x2) {
 		byte data[] = null, tempX[] = null;
 		int lenX1 = x1.length;
 		int lenX2 = x2.length;
@@ -66,7 +107,7 @@ public class HybridCryptographyCoder {
 	/**
 	 * Perform bitwise circular left shift operation
 	 */
-	private static byte[] bitwiseCircularLeftShift(byte[] x, int n) {
+	public static byte[] bitwiseCircularLeftShift(byte[] x, int n) {
 		byte data[] = new byte[x.length];
 		int length = data.length;
 		
@@ -80,7 +121,7 @@ public class HybridCryptographyCoder {
 	/**
 	 * Perform bitwise circular right shift operation
 	 */
-	private static byte[] bitwiseCircularRightShift(byte[] x, int n) {
+	public static byte[] bitwiseCircularRightShift(byte[] x, int n) {
 		byte data[] = new byte[x.length];
 		int length = x.length, m;
 		
